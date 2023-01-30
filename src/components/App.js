@@ -1,57 +1,52 @@
-import React from "react";
+import React,{useState} from "react";
 import CategoryFilter from "./CategoryFilter";
 import NewTaskForm from "./NewTaskForm";
 import TaskList from "./TaskList";
-import {useState} from "react";
-
 import { CATEGORIES, TASKS } from "../data";
-console.log("Here's the data you're working with");
-console.log({ CATEGORIES, TASKS });
 
 function App() {
-  const [text, setText] = useState("");
-const [formCategory, setFormCategory] = useState("Code")
+  const [task, setTask] = useState(TASKS)
+  const [categories, setCategories] = useState(CATEGORIES)
+  const [selectedCategoryButton, setSelectedCategoryButton] = useState('All')
+  
+  
 
-const [myTasks, setMyTasks] = useState(TASKS)
-const [selectedCategory, setSelectedCategory] = useState("All")
+  function addNewItemtoList(newItem){
+    setTask([...task,newItem])
+  }
 
-const obj = {
-  text: text,
-  category: formCategory,
-}
+  function deletedItem(deletedItem){
+    setTask(task.filter((item)=>item.text !== deletedItem))
+  }
+ 
 
-function onTaskFormSubmit(e) {
-  e.preventDefault();
-  setMyTasks([...myTasks, obj])
-}
+  const itemDisplayed = task
 
-function handleTextChange(e){
-  setText(e.target.value)
-}
+  .filter(
+    (item)=>{ 
+    if(selectedCategoryButton==='All') return true
+    return selectedCategoryButton === item.category
+   } 
+   )
 
-function handleCategoryChange(e){
-  setFormCategory(e.target.value)
-}
-
-function removeTask(taskItem){
-  setMyTasks(myTasks.filter((item)=> item.text !== taskItem));
-}
-
-const filteredTasks = myTasks.filter((task) => selectedCategory === "All" || task.category === selectedCategory);
+  
+          
 
   return (
     <div className="App">
       <h2>My tasks</h2>
-      <CategoryFilter categories={CATEGORIES}
-      onSelectedCategory={selectedCategory}
-      onHandleCategory={setSelectedCategory}/>
-      <NewTaskForm 
-       onTextChange={handleTextChange}
-       onCategoryChange={handleCategoryChange}
-       formCategory={formCategory}
-      categories={CATEGORIES.filter((item)=> item !== "All")}
-      onTaskFormSubmit={onTaskFormSubmit}/>
-      <TaskList tasks={filteredTasks} onDelete={removeTask} />
+      <CategoryFilter
+        categories={categories}
+        onButton={selectedCategoryButton}
+        selectedButton={setSelectedCategoryButton} 
+      />
+      <NewTaskForm
+        onTaskFormSubmit={addNewItemtoList}
+        categories={categories}
+      />
+      <TaskList 
+        deletedItem={deletedItem}
+        tasks={itemDisplayed} />
     </div>
   );
 }
